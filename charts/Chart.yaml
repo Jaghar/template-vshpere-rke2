@@ -1,0 +1,8 @@
+apiVersion: v1
+name: template-vmware
+description: Cluster template for rke2 on VMware
+version: 0.0.19
+icon: https://github.com/kubernetes/kubernetes/blob/master/logo/logo.png
+annotations:
+  catalog.cattle.io/type: cluster-template
+  catalog.cattle.io/namespace: fleet-default

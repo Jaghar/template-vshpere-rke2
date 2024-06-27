@@ -1,0 +1,105 @@
+apiVersion: rke-machine-config.cattle.io/v1
+kind: VmwarevsphereConfig
+metadata:
+  name: {{ .Values.cluster.name }}-{{ .Values.pool.controlplane.name }}
+  namespace: fleet-default
+boot2dockerUrl: ""
+cfgparam:
+- disk.enableUUID=TRUE
+cloneFrom:  {{ .Values.vcenter.template }}
+cloudConfig: |
+        #cloud-config
+        <write_files:
+         - path: /root/cloudinit.sh
+           permissions: "0755"
+           content: |
+               #!/bin/bash
+               /usr/bin/vmtoolsd --cmd 'info-get guestinfo.ovfEnv' > /tmp/ovfenv
+               IPAddress=$(sed -n 's/.*Property oe:key="guestinfo.interface.0.ip.0.address" oe:value="\([^"]*\).*/\1/p' /tmp/ovfenv) 
+               SubnetMask=$(sed -n 's/.*Property oe:key="guestinfo.interface.0.ip.0.netmask" oe:value="\([^"]*\).*/\1/p' /tmp/ovfenv)
+               CIDR=$(ipcalc $IPAddress/$SubnetMask|grep "^Netmask"|awk '{print $4}')
+               Gateway=$(sed -n 's/.*Property oe:key="guestinfo.interface.0.route.0.gateway" oe:value="\([^"]*\).*/\1/p' /tmp/ovfenv)
+               DNSSearch=$(sed -n 's/.*Property oe:key="guestinfo.dnssearch.servers" oe:value="\([^"]*\).*/\1/p' /tmp/ovfenv)
+               DNS=$(sed -n 's/.*Property oe:key="guestinfo.dns.servers" oe:value="\([^"]*\).*/\1/p' /tmp/ovfenv)
+               nmcli con add con-name static ifname eth0 type ethernet ip4 $IPAddress/$CIDR gw4 $Gateway ipv4.dns "$DNS" ipv4.dns-search "$DNSSearch"
+               nmcli con up static
+               export http_proxy=http://proxy-cloe.tec.in.phm.education.gouv.fr:3128
+               export https_proxy=http://proxy-cloe.tec.in.phm.education.gouv.fr:3128
+        runcmd:
+          - bash /root/cloudinit.sh
+          - export http_proxy=http://proxy-cloe.tec.in.phm.education.gouv.fr:3128
+          - export https_proxy=http://proxy-cloe.tec.in.phm.education.gouv.fr:3128
+          - export no_proxy=localhost,127.0.0.1,pr-clo*,*.iaas.in.cloe.education.gouv.fr,*.vcf.in.cloe.education.gouv.fr,pr-vcproxy.iaas.in.cloe.education.gouv.fr
+cloudinit: ""
+common:
+  labels: null
+  taints: []
+contentLibrary: ""
+
+#cpuCount: {{ .Values.pool.controlplane.vmcpu | quote }}
+{{- if eq (regexFind "^\\S*" .Values.pool.controlplane.vmbasket) "TINY" }}
+cpuCount: {{ .Values.pool.controlplane.vmtinycpu | quote }}
+{{- else if eq (regexFind "^\\S*" .Values.pool.controlplane.vmbasket) "SMALL" }}
+cpuCount: {{ .Values.pool.controlplane.vmsmallcpu | quote }}
+{{- else }}
+cpuCount: {{ .Values.pool.controlplane.vmstandardcpu | quote }}
+{{- end }}
+
+# 'Creation type when creating a new virtual machine. Supported values: vm, template, library, legacy'
+creationType: template
+
+# vSphere custom attribute, format key/value e.g. '200=mycustom value'
+customAttribute: []
+
+# vSphere datacenter for virtual machine
+datacenter: {{ .Values.vcenter.datacenter }}
+
+# vSphere datastore for virtual machine
+datastore: {{ .Values.vcenter.datastore }}
+
+ # vSphere size of disk for  VM (in MB)
+diskSize: {{ .Values.pool.controlplane.vmdisk | quote }}
+
+# vSphere folder for the docker VM. This folder must already exist in the datacenter
+folder: {{ .Values.vcenter.folder }}
+
+ # vSphere compute resource where the docker VM will be instantiated. This can be omitted if using a cluster with DRS
+hostsystem: {{ .Values.pool.controlplane.host }}
+
+#memorySize: {{ .Values.pool.controlplane.vmram | quote }}
+{{- if eq (regexFind "^\\S*" .Values.pool.controlplane.vmbasket) "TINY" }}
+memorySize: {{ .Values.pool.controlplane.vmtinyram | quote }}
+{{- else if eq (regexFind "^\\S*" .Values.pool.controlplane.vmbasket) "SMALL" }}
+memorySize: {{ .Values.pool.controlplane.vmsmallram | quote }}
+{{- else }}
+memorySize: {{ .Values.pool.controlplane.vmstandardram | quote }}
+{{- end }}
+
+network:
+# on peut mettre directement : /vRack-Datacenter/network/vxw-dvs-9-virtualwire-395-sid-10062-LS-KUB-MST-01 |si ça fonctionne pas avec regex 
+## regex ^\S*
+- {{ .Values.vcenter.datacenter }}/network/{{ regexFind "^\\S*" .Values.pool.controlplane.vlan }}
+os: linux
+pool: {{ .Values.vcenter.pool }}
+
+# 'vSphere vApp IP allocation policy. Supported values are: dhcp, fixed, transient and fixedAllocated'
+vappIpallocationpolicy: fixedAllocated
+
+# 'vSphere vApp IP protocol for this deployment. Supported values are: IPv4 and IPv6'
+vappIpprotocol: IPv4
+
+# vSphere vApp properties
+vappProperty:
+- guestinfo.interface.0.ip.0.address=ip:{{ regexFind "^\\S*" .Values.pool.controlplane.vlan }}
+- guestinfo.interface.0.ip.0.netmask=${netmask:{{ regexFind "^\\S*" .Values.pool.controlplane.vlan }}}
+- guestinfo.interface.0.route.0.gateway=${gateway:{{ regexFind "^\\S*" .Values.pool.controlplane.vlan }}}
+- guestinfo.dns.servers=${dns:{{ regexFind "^\\S*" .Values.pool.controlplane.vlan }}}
+
+# 'vSphere OVF environment transports to use for properties. Supported values are: iso and com.vmware.guestInfo'
+vappTransport: com.vmware.guestInfo
+
+# vSphere IP/hostname for vCenter
+vcenter: "{{ .Values.vcenter.host }}"
+
+# vSphere Port for vCenter
+vcenterPort: "443"

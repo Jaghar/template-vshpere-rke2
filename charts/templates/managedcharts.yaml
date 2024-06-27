@@ -1,0 +1,129 @@
+{{- if .Values.monitoring.enabled }}
+apiVersion: management.cattle.io/v3
+kind: ManagedChart
+metadata:
+  name: monitoring-crd-{{ .Values.cluster.name }}
+  namespace: fleet-default
+spec:
+  chart: "rancher-monitoring-crd"
+  repoName: "rancher-charts"
+  releaseName: "rancher-monitoring-crd"
+  version: {{ .Values.monitoring.version }}
+  {{- if .Values.monitoring.values }}
+  values: 
+{{ toYaml .Values.monitoring.values | indent 4 }}
+  {{- end }}
+  defaultNamespace: "cattle-monitoring-system"
+  targets:
+  - clusterName: cluster-{{ .Values.cluster.name }}
+---
+apiVersion: management.cattle.io/v3
+kind: ManagedChart
+metadata:
+  name: monitoring-{{ .Values.cluster.name }}
+  namespace: fleet-default
+spec:
+  chart: "rancher-monitoring"
+  repoName: "rancher-charts"
+  releaseName: "rancher-monitoring"
+  version: {{ .Values.monitoring.version }}
+  {{- if .Values.monitoring.values }}
+  values: 
+{{ toYaml .Values.monitoring.values | indent 4 }}
+  {{- end }}
+  diff:
+    comparePatches:
+    - apiVersion: admissionregistration.k8s.io/v1beta1
+      kind: MutatingWebhookConfiguration
+      name: rancher-monitoring-admission
+      jsonPointers:
+      - /webhooks/0/failurePolicy
+    - apiVersion: admissionregistration.k8s.io/v1beta1
+      kind: ValidatingWebhookConfiguration
+      name: rancher-monitoring-admission
+      jsonPointers:
+      - /webhooks/0/failurePolicy
+  defaultNamespace: "cattle-monitoring-system"
+  targets:
+  - clusterName: cluster-{{ .Values.cluster.name }}
+---
+{{- end }}
+
+{{- if .Values.logging.enabled }}
+apiVersion: management.cattle.io/v3
+kind: ManagedChart
+metadata:
+  name: logging-crd-{{ .Values.cluster.name }}
+  namespace: fleet-default
+spec:
+  chart: "rancher-logging-crd"
+  repoName: "rancher-charts"
+  releaseName: "rancher-logging-crd"
+  version: {{ .Values.logging.version }}
+  {{- if .Values.logging.values }}
+  values: 
+{{ toYaml .Values.logging.values | indent 4 }}
+  {{- end }}
+  defaultNamespace: "cattle-logging-system"
+  targets:
+  - clusterName: cluster-{{ .Values.cluster.name }}
+---
+apiVersion: management.cattle.io/v3
+kind: ManagedChart
+metadata:
+  name: logging-{{ .Values.cluster.name }}
+  namespace: fleet-default
+spec:
+  chart: "rancher-logging"
+  repoName: "rancher-charts"
+  releaseName: "rancher-logging"
+  version: {{ .Values.logging.version }}
+  {{- if .Values.logging.values }}
+  values: 
+{{ toYaml .Values.logging.values | indent 4 }}
+  {{- end }}
+  defaultNamespace: "cattle-logging-system"
+  targets:
+  - clusterName: cluster-{{ .Values.cluster.name }}
+---
+{{- end }}
+
+
+{{- if .Values.gatekeeper.enabled }}
+apiVersion: management.cattle.io/v3
+kind: ManagedChart
+metadata:
+  name: gatekeeper-crd-{{ .Values.cluster.name }}
+  namespace: fleet-default
+spec:
+  chart: "rancher-gatekeeper-crd"
+  repoName: "rancher-charts"
+  releaseName: "rancher-gatekeeper-crd"
+  version: {{ .Values.gatekeeper.version }}
+  {{- if .Values.gatekeeper.values }}
+  values: 
+{{ toYaml .Values.gatekeeper.values | indent 4 }}
+  {{- end }}
+  defaultNamespace: "cattle-gatekeeper-system"
+  targets:
+  - clusterName: cluster-{{ .Values.cluster.name }}
+---
+apiVersion: management.cattle.io/v3
+kind: ManagedChart
+metadata:
+  name: gatekeeper-{{ .Values.cluster.name }}
+  namespace: fleet-default
+spec:
+  chart: "rancher-gatekeeper"
+  repoName: "rancher-charts"
+  releaseName: "rancher-gatekeeper"
+  version: {{ .Values.gatekeeper.version }}
+  {{- if .Values.gatekeeper.values }}
+  values: 
+{{ toYaml .Values.gatekeeper.values | indent 4 }}
+  {{- end }}
+  defaultNamespace: "cattle-gatekeeper-system"
+  targets:
+  - clusterName: cluster-{{ .Values.cluster.name }}
+---
+{{- end }}

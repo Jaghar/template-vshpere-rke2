@@ -1,0 +1,135 @@
+#cloudCredentialSecretName: "cattle-global-data:cc-pbtlh"
+cloudprovider: "rancher-vsphere"
+
+s3:
+  endpoint: "storagegrid-racine.in.phm.education.gouv.fr"
+  region: "eu-west-3"
+
+http_proxy: "http://proxy-cloe.tec.in.phm.education.gouv.fr:3128"
+no_proxy: "localhost,127.0.0.1,pr-clo*,.vcf.in.cloe.education.gouv.fr,pr-vcproxy.iaas.in.cloe.education.gouv.fr,.svc,.cluster.local,10.42.0.0/16,10.43.0.0/16,10.242.227.0/24,10.242.228.0/24"
+
+vcenter:
+  proxy: "pr-vcproxy.iaas.in.cloe.education.gouv.fr"
+  host: "rack-1-vc-1.vcf.in.cloe.education.gouv.fr"
+  pool: /vRack-Datacenter/host/WLDEV01-0-cluster/Resources
+  folder: /vRack-Datacenter/vm/RANCHER
+  template: /vRack-Datacenter/vm/Templates/TMP-RKE2/TMPL-RKE2-V01
+  datacenter: /vRack-Datacenter
+  username: "svc-rancher@vsphere.local"
+  datastore: /vRack-Datacenter/datastore/vsanDatastore
+  datastoreURL: "ds:///vmfs/volumes/vsan:52e53de2208ad7b6-862494109dacbf3d/"
+  allowVolumeExpansion: true
+
+pool:
+  controlplane:
+    name: "mst"
+    etcd: true
+    controlplane: true
+    worker: false
+    vmcpu: 2
+    vmtinycpu: 2
+    vmsmallcpu: 2
+    vmstandardcpu: 4
+    vmram: 8192
+    vmtinyram: 8192
+    vmsmallram: 8192
+    vmstandardram: 16384
+    vmdisk: 153600
+    host: ""
+    vlan: "vxw-dvs-9-virtualwire-395-sid-10062-LS-KUB-MST-01"
+
+  worker:
+    name: "wrk"
+    etcd: false
+    controlplane: false
+    worker: true
+    vmcpu: 4
+    vmtinycpu: 4
+    vmsmallcpu: 4
+    vmstandardcpu: 8
+    vmram: 16384
+    vmtinyram: 16384
+    vmsmallram: 16384
+    vmstandardram: 65536
+    vmdisk: 153600
+    host: ""
+    vlan: "vxw-dvs-9-virtualwire-433-sid-10067-LS-KUB-WRK-01"
+
+  # enable monitoring
+monitoring:
+  enabled: true
+  values:
+    prometheus:
+      prometheusSpec:
+        evaluationInterval: 1m
+        resources:
+          limits:
+            cpu: 3000m
+            memory: 25000Mi
+          requests:
+            cpu: 2000m
+            memory: 14000Mi
+        retention: 15d
+        retentionSize: 50GiB
+        scrapeInterval: 1m
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              accessModes:
+              - ReadWriteOnce
+              resources:
+                requests:
+                  storage: 50Gi
+              storageClassName: vsphere-csi-sc
+      tolerations:
+      - effect: NoSchedule
+        key: cattle.io/os
+        operator: Equal
+        value: linux
+      - key: tier
+        operator: Equal
+        value: app
+      - key: tier
+        operator: Equal
+        value: web
+      - key: tier
+        operator: Equal
+        value: db
+
+  # enable logging
+logging:
+  enabled: true
+  values:
+      tolerations:
+      - effect: NoSchedule
+        key: cattle.io/os
+        operator: Equal
+        value: linux
+      - key: tier
+        operator: Equal
+        value: app
+      - key: tier
+        operator: Equal
+        value: web
+      - key: tier
+        operator: Equal
+        value: db
+
+  # enable logging
+gatekeeper:
+  enabled: true
+  values:
+      tolerations:
+      - effect: NoSchedule
+        key: cattle.io/os
+        operator: Equal
+        value: linux
+      - key: tier
+        operator: Equal
+        value: app
+      - key: tier
+        operator: Equal
+        value: web
+      - key: tier
+        operator: Equal
+        value: db
