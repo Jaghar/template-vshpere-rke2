@@ -6,7 +6,7 @@ s3:
 
 http_proxy: "http://proxy.tec.in.phm.education.gouv.fr:3128"
 https_proxy: "http://proxy.tec.in.phm.education.gouv.fr:3128"
-no_proxy: "127.0.0.1,localhost,10.0.0.0/8"
+no_proxy: "127.0.0.1,localhost,10.0.0.0/8,.cluster.local,cattle-system.svc,.svc"
 
 vcenter:
   proxy: ""
