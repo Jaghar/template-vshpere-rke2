@@ -1,7 +1,7 @@
 apiVersion: provisioning.cattle.io/v1
 kind: Cluster
 metadata:
-  name: cluster-{{ .Values.cluster.name }}
+  name: pp-{{ .Values.cluster.name }}
   namespace: fleet-default
 spec:
   {{- if .Values.cloudCredentialSecretName }}
