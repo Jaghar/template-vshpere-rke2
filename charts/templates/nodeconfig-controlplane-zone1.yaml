@@ -33,6 +33,9 @@ cloudConfig: |
                /usr/bin/sleep 30
         runcmd:
           - bash /root/cloudinit.sh
+          - export http_proxy=http://proxy.tec.in.phm.education.gouv.fr:3128
+          - export https_proxy=http://proxy.tec.in.phm.education.gouv.fr:3128
+          - export no_proxy=127.0.0.1,localhost,10.0.0.0/8,.cluster.local,cattle-system.svc,.svc
 cloudinit: ""
 common:
   labels: null
