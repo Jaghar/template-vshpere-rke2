@@ -1,23 +1,23 @@
-#cloudCredentialSecretName: "cattle-global-data:cc-pbtlh"
 cloudprovider: "rancher-vsphere"
 
 s3:
-  endpoint: "storagegrid-racine.in.phm.education.gouv.fr"
+  endpoint: "storagegrid.in.phm.education.gouv.fr"
   region: "eu-west-3"
 
-http_proxy: "http://proxy-cloe.tec.in.phm.education.gouv.fr:3128"
-no_proxy: "localhost,127.0.0.1,pr-clo*,.vcf.in.cloe.education.gouv.fr,pr-vcproxy.iaas.in.cloe.education.gouv.fr,.svc,.cluster.local,10.42.0.0/16,10.43.0.0/16,10.242.227.0/24,10.242.228.0/24"
+http_proxy: "http://proxy.tec.in.phm.education.gouv.fr:3128"
+https_proxy: "http://proxy.tec.in.phm.education.gouv.fr:3128"
+no_proxy: "127.0.0.1,localhost,10.0.0.0/8"
 
 vcenter:
-  proxy: "pr-vcproxy.iaas.in.cloe.education.gouv.fr"
+  proxy: ""
   host: "rack-1-vc-1.vcf.in.cloe.education.gouv.fr"
-  pool: /vRack-Datacenter/host/WLDEV01-0-cluster/Resources
-  folder: /vRack-Datacenter/vm/RANCHER
-  template: /vRack-Datacenter/vm/Templates/TMP-RKE2/TMPL-RKE2-V01
-  datacenter: /vRack-Datacenter
-  username: "svc-rancher@vsphere.local"
-  datastore: /vRack-Datacenter/datastore/vsanDatastore
-  datastoreURL: "ds:///vmfs/volumes/vsan:52e53de2208ad7b6-862494109dacbf3d/"
+  pool: /DC_OSN_PHM_PP_01/host/CCL_OSN_PHM_PP_STD_01/Resources
+  folder: /DC_OSN_PHM_PP_01/vm/VM_OSN_PHM_PP/VM_OSN_PHM_PP_K8S
+  template: /DC_OSN_PHM_PP_01/vm/VM_OSN_PHM_PP/TMP_OSN_PHM_PP_RCH/TEMPLATE-PP-RHEL8X-RKE2-v3
+  datacenter: /DC_OSN_PHM_PP_01
+  username: "svc-k8s-pp-sto@vsphere.local"
+  datastore: /DC_OSN_PHM_PP_01/datastore/DC_OSN_PHM_PP_STD_K8S_01/V_OSN_PHM_PP_STD_01_CHS22001_2T_K8S_00057
+  datastoreURL: "ds:///vmfs/volumes/65b2c79a-35fe2720-d38d-78ac448783d2/"
   allowVolumeExpansion: true
 
 pool:
@@ -27,16 +27,14 @@ pool:
     controlplane: true
     worker: false
     vmcpu: 2
-    vmtinycpu: 2
     vmsmallcpu: 2
     vmstandardcpu: 4
     vmram: 8192
-    vmtinyram: 8192
     vmsmallram: 8192
     vmstandardram: 16384
-    vmdisk: 153600
+    vmdisk: 20000
     host: ""
-    vlan: "vxw-dvs-9-virtualwire-395-sid-10062-LS-KUB-MST-01"
+    vlan: "DPG_OSN_PHM_PP_STD_01_VLAN-4017"
 
   worker:
     name: "wrk"
@@ -44,16 +42,14 @@ pool:
     controlplane: false
     worker: true
     vmcpu: 4
-    vmtinycpu: 4
     vmsmallcpu: 4
     vmstandardcpu: 8
     vmram: 16384
-    vmtinyram: 16384
     vmsmallram: 16384
-    vmstandardram: 65536
-    vmdisk: 153600
+    vmstandardram: 32768
+    vmdisk: 20000
     host: ""
-    vlan: "vxw-dvs-9-virtualwire-433-sid-10067-LS-KUB-WRK-01"
+    vlan: "DPG_OSN_PHM_PP_STD_01_VLAN-4018"
 
   # enable monitoring
 monitoring:
@@ -81,55 +77,12 @@ monitoring:
                 requests:
                   storage: 50Gi
               storageClassName: vsphere-csi-sc
-      tolerations:
-      - effect: NoSchedule
-        key: cattle.io/os
-        operator: Equal
-        value: linux
-      - key: tier
-        operator: Equal
-        value: app
-      - key: tier
-        operator: Equal
-        value: web
-      - key: tier
-        operator: Equal
-        value: db
 
   # enable logging
 logging:
   enabled: true
-  values:
-      tolerations:
-      - effect: NoSchedule
-        key: cattle.io/os
-        operator: Equal
-        value: linux
-      - key: tier
-        operator: Equal
-        value: app
-      - key: tier
-        operator: Equal
-        value: web
-      - key: tier
-        operator: Equal
-        value: db
 
   # enable logging
 gatekeeper:
   enabled: true
-  values:
-      tolerations:
-      - effect: NoSchedule
-        key: cattle.io/os
-        operator: Equal
-        value: linux
-      - key: tier
-        operator: Equal
-        value: app
-      - key: tier
-        operator: Equal
-        value: web
-      - key: tier
-        operator: Equal
-        value: db
+

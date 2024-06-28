@@ -22,14 +22,17 @@ cloudConfig: |
                DNSSearch=$(sed -n 's/.*Property oe:key="guestinfo.dnssearch.servers" oe:value="\([^"]*\).*/\1/p' /tmp/ovfenv)
                DNS=$(sed -n 's/.*Property oe:key="guestinfo.dns.servers" oe:value="\([^"]*\).*/\1/p' /tmp/ovfenv)
                nmcli con add con-name static ifname eth0 type ethernet ip4 $IPAddress/$CIDR gw4 $Gateway ipv4.dns "$DNS" ipv4.dns-search "$DNSSearch"
+               nmcli con mod static ipv6.method disabled
                nmcli con up static
-               export http_proxy=http://proxy-cloe.tec.in.phm.education.gouv.fr:3128
-               export https_proxy=http://proxy-cloe.tec.in.phm.education.gouv.fr:3128
+               hostnamectl set-hostname $(hostname).vi.pp.in.phm.education.gouv.fr
+               /usr/sbin/subscription-manager unregister
+               /usr/sbin/subscription-manager clean
+               /usr/bin/rm /etc/yum.repo.d/* -f
+               /usr/bin/yum remove katello* -y
+               /usr/bin/curl -sS  'https://pr-sti-sat01.tec.pp.in.phm.education.gouv.fr/register?activation_keys=ak-qa-rhel-8x&force=true&hostgroup_id=844&location_id=4&organization_id=1&setup_insights=false' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjo0LCJpYXQiOjE3MDA4MzczMzAsImp0aSI6ImU1YWNlODBiNjU0MDIyMzMyODFhOGQ4YzZlYjc2MWY2OWUyNGMyZDc2OGJjZjVmNmJmYzlhMWVmNzFiMzhmZDciLCJleHAiOjIwMTYxOTczMzAsInNjb3BlIjoicmVnaXN0cmF0aW9uI2dsb2JhbCByZWdpc3RyYXRpb24jaG9zdCJ9.FOtPw0VUB5VRk4_aRs9wyo_jcAGppWUxpMXEGosM0zQ' | bash > /dev/null 2>&1 > /root/log_registersat.log
+               /usr/bin/sleep 30
         runcmd:
           - bash /root/cloudinit.sh
-          - export http_proxy=http://proxy-cloe.tec.in.phm.education.gouv.fr:3128
-          - export https_proxy=http://proxy-cloe.tec.in.phm.education.gouv.fr:3128
-          - export no_proxy=localhost,127.0.0.1,pr-clo*,*.iaas.in.cloe.education.gouv.fr,*.vcf.in.cloe.education.gouv.fr,pr-vcproxy.iaas.in.cloe.education.gouv.fr
 cloudinit: ""
 common:
   labels: null
@@ -37,9 +40,7 @@ common:
 contentLibrary: ""
 
 #cpuCount: {{ .Values.pool.controlplane.vmcpu | quote }}
-{{- if eq (regexFind "^\\S*" .Values.pool.controlplane.vmbasket) "TINY" }}
-cpuCount: {{ .Values.pool.controlplane.vmtinycpu | quote }}
-{{- else if eq (regexFind "^\\S*" .Values.pool.controlplane.vmbasket) "SMALL" }}
+{{- if eq (regexFind "^\\S*" .Values.pool.controlplane.vmbasket) "SMALL" }}
 cpuCount: {{ .Values.pool.controlplane.vmsmallcpu | quote }}
 {{- else }}
 cpuCount: {{ .Values.pool.controlplane.vmstandardcpu | quote }}
@@ -67,9 +68,7 @@ folder: {{ .Values.vcenter.folder }}
 hostsystem: {{ .Values.pool.controlplane.host }}
 
 #memorySize: {{ .Values.pool.controlplane.vmram | quote }}
-{{- if eq (regexFind "^\\S*" .Values.pool.controlplane.vmbasket) "TINY" }}
-memorySize: {{ .Values.pool.controlplane.vmtinyram | quote }}
-{{- else if eq (regexFind "^\\S*" .Values.pool.controlplane.vmbasket) "SMALL" }}
+{{- if eq (regexFind "^\\S*" .Values.pool.controlplane.vmbasket) "SMALL" }}
 memorySize: {{ .Values.pool.controlplane.vmsmallram | quote }}
 {{- else }}
 memorySize: {{ .Values.pool.controlplane.vmstandardram | quote }}
@@ -94,6 +93,7 @@ vappProperty:
 - guestinfo.interface.0.ip.0.netmask=${netmask:{{ regexFind "^\\S*" .Values.pool.controlplane.vlan }}}
 - guestinfo.interface.0.route.0.gateway=${gateway:{{ regexFind "^\\S*" .Values.pool.controlplane.vlan }}}
 - guestinfo.dns.servers=${dns:{{ regexFind "^\\S*" .Values.pool.controlplane.vlan }}}
+- guestinfo.dnssearch.servers=${dns:{{ regexFind "^\\S*" .Values.pool.controlplane.vlan }}}
 
 # 'vSphere OVF environment transports to use for properties. Supported values are: iso and com.vmware.guestInfo'
 vappTransport: com.vmware.guestInfo

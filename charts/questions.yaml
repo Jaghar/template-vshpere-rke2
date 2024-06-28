@@ -16,7 +16,7 @@ questions:
   group: "General"
 
 - variable: vCenterPassword
-  description: "Specify vCenter passwor for CSI/CPI"
+  description: "Specify vCenter password for CSI/CPI"
   label: "vCenter Password"
   required: true
   type: password
@@ -36,10 +36,9 @@ questions:
   default: v1.26.13+rke2r1
   type: enum
   options:
-  - v1.26.13+rke2r1
-  - v1.25.7-rke2r1
-  - v1.24.9-rke2r2
-  - v1.24.8-rke2r1
+  - v1.26.15+rke2r1
+  - v1.26.14+rke2r1
+  - v1.25.16-rke2r1
   group: "General"
 
 - variable: cniVersion
@@ -66,16 +65,10 @@ questions:
   description: "Specify S3 Bucket name"
   label: "S3 bucket name"
   required: true
-  default: buc-cloe-backup-k8s-dev-ppd
+  default: buc-osy-backup-k8s-pp
   type: enum
   options:
-  - buc-cloe-backup-k8s-dev
-  - buc-cloe-backup-k8s-qua
-  - buc-cloe-backup-k8s-otl
-  - buc-cloe-backup-k8s-adm
-  - buc-cloe-backup-k8s-dev-ppd
-  - buc-cloe-backup-k8s-qua-ppd
-  - buc-cloe-backup-k8s-otl-ppd
+  - buc-osy-backup-k8s-pp
   group: "General"
 
 
@@ -83,10 +76,9 @@ questions:
   description: "Size of VMs in pool"
   label: "Desired size of VM"
   required: true
-  default: "SMALL -> vCPU:2 / MEM:8GB"
+  default: "STANDARD -> vCPU:4 / MEM:16GB"
   type: enum
   options:
-  - TINY -> vCPU:2 / MEM:8GB
   - SMALL -> vCPU:2 / MEM:8GB
   - STANDARD -> vCPU:4 / MEM:16GB
   group: "Nodepool: controlplane"
@@ -118,12 +110,11 @@ questions:
   description: "Size of VMs in pool"
   label: "Desired size of VM"
   required: true
-  default: "SMALL -> vCPU:4 / MEM:16GB"
+  default: "STANDARD -> vCPU:8 / MEM:32GB"
   type: enum
   options:
-  - TINY -> vCPU:4 / MEM:16GB
   - SMALL -> vCPU:4 / MEM:16GB
-  - STANDARD -> vCPU:8 / MEM:64GB
+  - STANDARD -> vCPU:8 / MEM:32GB
   group: "Nodepool: worker"
   
 - variable: pool.worker.vlan
