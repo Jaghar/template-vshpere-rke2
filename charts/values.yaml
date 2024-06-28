@@ -10,7 +10,7 @@ no_proxy: "127.0.0.1,localhost,10.0.0.0/8"
 
 vcenter:
   proxy: ""
-  host: "rack-1-vc-1.vcf.in.cloe.education.gouv.fr"
+  host: "pr-sti-vcenter22.vi.pp.in.phm.education.gouv.fr"
   pool: /DC_OSN_PHM_PP_01/host/CCL_OSN_PHM_PP_STD_01/Resources
   folder: /DC_OSN_PHM_PP_01/vm/VM_OSN_PHM_PP/VM_OSN_PHM_PP_K8S
   template: /DC_OSN_PHM_PP_01/vm/VM_OSN_PHM_PP/TMP_OSN_PHM_PP_RCH/TEMPLATE-PP-RHEL8X-RKE2-v3
