@@ -135,6 +135,7 @@ questions:
   type: enum
   required: true
   options:
+  - 1
   - 2
   - 4
   - 6
