@@ -56,12 +56,11 @@ cloudConfig: |
           
       path: /root/cloudinit.sh
       permissions: "0755"
-cloudinit: ""
+cloudinit: null
 common:
   labels: null
   taints: []
 contentLibrary: ""
-#cpuCount: {{ .Values.pool.worker.vmcpu | quote }}
 {{- if eq (regexFind "^\\S*" .Values.pool.worker.vmbasket) "SMALL" }}
 cpuCount: {{ .Values.pool.worker.vmsmallcpu | quote }}
 {{- else }}
@@ -82,7 +81,6 @@ folder: {{ .Values.vcenter.folder }}
 
 hostsystem: {{ .Values.pool.worker.host }}
 
-#memorySize: {{ .Values.pool.worker.vmram | quote }}
 {{- if eq (regexFind "^\\S*" .Values.pool.worker.vmbasket) "SMALL" }}
 memorySize: {{ .Values.pool.worker.vmsmallram | quote }}
 {{- else }}
@@ -90,8 +88,6 @@ memorySize: {{ .Values.pool.worker.vmstandardram | quote }}
 {{- end }}
 
 network:
-# on peut mettre directement : /vRack-Datacenter/network/vxw-dvs-9-virtualwire-433-sid-10067-LS-KUB-WRK-01 |si ça fonctionne pas avec regex 
-## regex ^\S* 
 - {{ .Values.vcenter.datacenter }}/network/{{ regexFind "^\\S*" .Values.pool.worker.vlan }}
 os: linux
 pool: {{ .Values.vcenter.pool }}

@@ -62,7 +62,6 @@ common:
   taints: []
 contentLibrary: ""
 
-#cpuCount: {{ .Values.pool.controlplane.vmcpu | quote }}
 {{- if eq (regexFind "^\\S*" .Values.pool.controlplane.vmbasket) "SMALL" }}
 cpuCount: {{ .Values.pool.controlplane.vmsmallcpu | quote }}
 {{- else }}
@@ -98,8 +97,6 @@ memorySize: {{ .Values.pool.controlplane.vmstandardram | quote }}
 {{- end }}
 
 network:
-# on peut mettre directement : /vRack-Datacenter/network/vxw-dvs-9-virtualwire-395-sid-10062-LS-KUB-MST-01 |si ça fonctionne pas avec regex 
-## regex ^\S*
 - {{ .Values.vcenter.datacenter }}/network/{{ regexFind "^\\S*" .Values.pool.controlplane.vlan }}
 os: linux
 pool: {{ .Values.vcenter.pool }}
